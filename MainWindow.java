@@ -1,171 +1,244 @@
-import java.util.*;
+
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Random;
-import java.util.Scanner;
 
-public class MainWindow {
-	private String wordToGuess;
-	private int difficulty;
-	/*	1)10 guesses-iterate by 6
-	 *	2)6 guesses-iterate by 10 
-	 *	3)4 guesses-iterate by 15
-	 *	4)1 guess-iterate by 60
+import javax.swing.JFrame;
+import javax.swing.JButton;
+
+public class MainWindow extends JFrame implements ActionListener{
+	
+	/**
+	 * 
 	 */
-	private String guesses;
-	private int remainingGuess;
-	private int wrongIterator;
-	private String wordProg;
+	private static final long serialVersionUID = 1L;
 	
-	private int gameMode;
-	/*	default)Enter own word/random
-	 * 	1)Holidays
-	 * 	2)Food
-	 * 	3)Colors
-	 *	4)Locations
-	 */
+	public String wordToGuess;
 	
-	private boolean twoPlayer;
+	public boolean twoPlayer = false;
+	
+	public int difficulty;
+		/*
+		 * 1) 10 guesses - iterates by 6 - easy
+		 * 2) 6 guesses - iterates by 10 - medium
+		 * 3) 4 guesses - iterates by 15 - hard
+		 * 4) 1 guess - iterates by 60 - insane
+		 */
+	public int gameMode;
+		/*
+		 * 1)Enter own word/random
+		 * 2)Holidays
+		 * 3)Food
+		 * 4)Colors
+		 * 5)Locations
+		 */
+	
+	private int remainingGuesses = 60;//not really 60. use 60 because it can be
+										//divided by all numbers from difficulty
+	public int guessIterator;//depends based on difficulty
+	
+	public String wrongGuesses = "";
+	public String visibleWord;
+	
+	private String longWord = "PNEUMONOULTRAMICROSCOPICSILICOVOLCANOCONIOSIS";
 	
 	
-	
-	public MainWindow(String word, int difficulty, boolean twoPlayer, int gameMode){
+	public MainWindow(){
+		super("Hangman");
+		setSize(600, 600);
+		setResizable(false);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		
-		this.twoPlayer = twoPlayer;
-		this.gameMode = gameMode;
+		setLayout(new FlowLayout());
 		
-		Random r = new Random();
 		
-		if(!twoPlayer){//1 player mode-no option to enter own word
-			if(this.gameMode == 1){//holidays
-				String[] words = new String[]{"JOLLY", "BELLS", "JOYFUL", "TREE", 
-												"CHRISTMAS", "HALLOWEEN", "FIREWORKS", "WALNUT", "COAL", 
-												"PRESENT", "STUFFING", "TURKEY"};
-				word = words[r.nextInt(words.length) - 1];
-			
-				
-				
-			}else if(this.gameMode == 2){//food
-				String[] words = new String[]{"HAMBURGER", "CHEESEBURGER", "BURRITO", "PIZZA", 
-												"BAGEL", "APPLE", "BREAD", "BUTTER", "CARROT", 	
-												"COKE", "COOKIE", "COFFEE", "PRETZEL", "SPAGHETTI",
-												"SHRIMP", "RAISIN", "TWINKIE", "FAJITA", "MEATLOAF", 
-												"CHEESE", "POPCORN", "JAMBALAYA", "SANDWICH"};
-				word = words[r.nextInt(words.length) - 1];
-			}else if(this.gameMode == 3){//color
-				String[] words = new String[]{"BLUE", "CYAN", "BLACK", "WHITE", 
-												"ORANGE", "PURPLE", "INDIGO", "MAROON", 
-												"AUBURN", "TURQUOISE", "MAGENTA"};
-				word = words[r.nextInt(words.length) - 1];
-			}else if(this.gameMode == 4){//location
-				String[] words = new String[]{"PARIS", "MADRID", "AFRICA", "ENGLAND",
-												"EUROPE", "ANTARCTICA", "AUSTRALIA", "CANADA", 
-												"MEXICO", "FLORIDA", "DENVER", "TEXAS", "CALIFORNIA", 
-												"MAINE", "KENTUCKY", "CHINA", "PHILIPPINES", 
-												"CARIBBEAN", "CHILE", "BAHAMAS", "LONDON"};
-				word = words[r.nextInt(words.length) - 1];
-			}else{//random word
-				String[] words = new String[]{"TOASTER", "SPATULA", "GLASSES", "CURTAINS", "COUCH",
-												"COMPUTER", "TOILET", "PENCIL", "SPONGE", "LIGHT", 
-												"QUILT", "LAMP", "REVERENCE", "SUBMISSIVE", "SUPERFICIAL", 
-												"EXEMPLARY", "DILIGENT", "DIGRESSION", "FRUGAL", "HEDONIST", 
-												"HYPOTHESIS", "IMPETUOUS", "RECONCILIATION", "RENOVATION", 
-												"SAGACITY", "WARY", "TACIT", "TACTFUL", "TWERK", "EMOJI", 
-												"THROWBACK", "HASHTAG", "FETCH", "INSTAGRAM", "FACEBOOK", 
-												"TWITTER", "SNAPCHAT", "POTATO", "PENDULUM", "DERIVATIVE", 
-												"CIRCUIT", "SERVER", "PHYSICS", "CALCULUS", "ANSARI", "DRAKE"};
-				word = words[r.nextInt((words.length) - 1)];
-				
+		/*
+		 * NUMBER OF PLAYERS
+		 */
+		JButton onePlayerButton = new JButton("One Player");
+		onePlayerButton.addActionListener(new ActionListener() {
 
+			public void actionPerformed(ActionEvent e){
+					twoPlayer = false;
+					System.out.println("twoPlayer? " + twoPlayer);
+					
 			}
-		}else{//2 player-> only enter word
-			//enter word or random
-				if(word == null){//no word->pick random
-					String[] words = new String[]{"TOASTER", "SPATULA", "GLASSES", "CURTAINS", "COUCH",
-							"COMPUTER", "TOILET", "PENCIL", "SPONGE", "LIGHT", 
-							"QUILT", "LAMP", "REVERENCE", "SUBMISSIVE", "SUPERFICIAL", 
-							"EXEMPLARY", "DILIGENT", "DIGRESSION", "FRUGAL", "HEDONIST", 
-							"HYPOTHESIS", "IMPETUOUS", "RECONCILIATION", "RENOVATION", 
-							"SAGACITY", "WARY", "TACIT", "TACTFUL", "TWERK", "EMOJI", 
-							"THROWBACK", "HASHTAG", "FETCH", "INSTAGRAM", "FACEBOOK", 
-							"TWITTER", "SNAPCHAT", "POTATO", "PENDULUM", "DERIVATIVE", 
-							"CIRCUIT", "SERVER", "PHYSICS", "CALCULUS", "ANSARI", "DRAKE"};
-					word = words[r.nextInt((words.length) - 1)];
-				}else{
-					wordToGuess = word;
-				}
+		}); 
+		
+		JButton twoPlayerButton = new JButton("twoPlayer");
+		twoPlayerButton.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e){
+					
+					twoPlayer = true;
+					System.out.println("twoPlayer? " + twoPlayer);
 			}
+		});
 		
+		add(onePlayerButton);
+		add(twoPlayerButton);
 		
+		//REMOVE BUTTONS - WAIT FUNCTION OR SOMETHING
+		//IF TWO PLAYER SKIP THE NEXT STEPS AND ASK FOR USER INPUT
 		
+		/*
+		 * DIFFICULTY
+		 */
 		
+		JButton easy = new JButton("Easy");
+		easy.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e){
+				difficulty = 1;	
+				guessIterator = 6;
+				System.out.println("Difficulty: " + difficulty);
+				System.out.println("Guesses: " + (remainingGuesses / guessIterator));
+			}
+		});
 		
+		JButton medium = new JButton("Medium");
+		medium.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e){
+				difficulty = 2;	
+				guessIterator = 10;
+				System.out.println("Difficulty: " + difficulty);
+				System.out.println("Guesses: " + (remainingGuesses / guessIterator));
+			}
+		});
 		
-		this.difficulty = difficulty;
-		remainingGuess = 60;
+		JButton hard = new JButton("Hard");
+		hard.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e){
+				difficulty = 3;
+				guessIterator = 15;
+				System.out.println("Difficulty: " + difficulty);
+				System.out.println("Guesses: " + (remainingGuesses / guessIterator));
+			}
+		});
 		
-		if(difficulty == 2){//medium
-			wrongIterator = 10;
-		}else if(difficulty == 3){//hard
-			wrongIterator = 15;
-		}else if(difficulty == 4){//insane
-			wrongIterator = 60;
-			word = "PNEUMONOULTRAMICROSCOPICSILICOVOLCANOCONIOSIS";
-		}else{//easy or invalid input
-			wrongIterator = 6;
-		}
+		JButton insane = new JButton("Insane");
+		insane.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e){
+				difficulty = 4;
+				guessIterator = 60;
+				System.out.println("Difficulty: " + difficulty);
+				System.out.println("Guesses: " + (remainingGuesses / guessIterator));
+			}
+		});
 		
-		guesses = "";
-		wordProg = "";
-		for(int i = 0; i < wordToGuess.length(); i++){
-			wordProg += "_ ";
-		}
+		add(easy);
+		add(medium);
+		add(hard);
+		add(insane);
+		
+		//REMOVE BUTTONS - WAIT FUNCTION OR SOMETHING
+		
+		/*
+		 * GAME MODE
+		 */
+		
+		JButton randomWord = new JButton("Random Word");
+		randomWord.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e){
+				gameMode = 1;
+				String words[] = new String[]{"TOASTER", "SPATULA", "GLASSES", "CURTAINS", "COUCH",
+						"COMPUTER", "TOILET", "PENCIL", "SPONGE", "LIGHT", 
+						"QUILT", "LAMP", "REVERENCE", "SUBMISSIVE", "SUPERFICIAL", 
+						"EXEMPLARY", "DILIGENT", "DIGRESSION", "FRUGAL", "HEDONIST", 
+						"HYPOTHESIS", "IMPETUOUS", "RECONCILIATION", "RENOVATION", 
+						"SAGACITY", "WARY", "TACIT", "TACTFUL", "TWERK", "EMOJI", 
+						"THROWBACK", "HASHTAG", "FETCH", "INSTAGRAM", "FACEBOOK", 
+						"TWITTER", "SNAPCHAT", "POTATO", "PENDULUM", "DERIVATIVE", 
+						"CIRCUIT", "SERVER", "PHYSICS", "CALCULUS", "ANSARI", "DRAKE"};
+				Random r = new Random();
+				wordToGuess = (difficulty!=4)? words[r.nextInt(words.length) - 1]:longWord;
+				System.out.println("GameMode: " + gameMode);
+				System.out.println("Word: " + wordToGuess);	
+			}
+		});
+		
+		JButton holiday = new JButton("Holiday");
+		holiday.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e){
+				gameMode = 2;
+				String words[] = new String[]{"JOLLY", "BELLS", "JOYFUL", "TREE", 
+						"CHRISTMAS", "HALLOWEEN", "FIREWORKS", "WALNUT", "COAL", 
+						"PRESENT", "STUFFING"};
+				Random r = new Random();
+				wordToGuess = (difficulty!=4)? words[r.nextInt(words.length) - 1]:longWord;
+				System.out.println("GameMode: " + gameMode);
+				System.out.println("Word: " + wordToGuess);	
+			}
+		});
+		
+		JButton food = new JButton("Food");
+		food.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e){
+				gameMode = 3;
+				String words[] = new String[]{"HAMBURGER", "CHEESEBURGER", "BURRITO", "PIZZA", 
+						"BAGEL", "APPLE", "BREAD", "BUTTER", "CARROT", 	
+						"COKE", "COOKIE", "COFFEE", "PRETZEL", "SPAGHETTI",
+						"SHRIMP", "RAISIN", "TWINKIE", "FAJITA", "MEATLOAF", 
+						"CHEESE", "POPCORN", "JAMBALAYA", "SANDWICH"};
+				Random r = new Random();
+				wordToGuess = (difficulty!=4)? words[r.nextInt(words.length) - 1]:longWord;
+				System.out.println("GameMode: " + gameMode);
+				System.out.println("Word: " + wordToGuess);	
+			}
+		});
+		
+		JButton color = new JButton("Color");
+		color.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e){
+				gameMode = 4;
+				String words[] = new String[]{"BLUE", "CYAN", "BLACK", "WHITE", 
+						"ORANGE", "PURPLE", "INDIGO", "MAROON", 
+						"AUBURN", "TURQUOISE", "MAGENTA"};
+				Random r = new Random();
+				wordToGuess = (difficulty!=4)? words[r.nextInt(words.length) - 1]:longWord;
+				System.out.println("GameMode: " + gameMode);
+				System.out.println("Word: " + wordToGuess);	
+			}
+		});
+		
+		JButton location = new JButton("Location");
+		location.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e){
+				gameMode = 5;
+				String words[] = new String[]{"PARIS", "MADRID", "AFRICA", "ENGLAND",
+						"EUROPE", "ANTARCTICA", "AUSTRALIA", "CANADA", 
+						"MEXICO", "FLORIDA", "DENVER", "TEXAS", "CALIFORNIA", 
+						"MAINE", "KENTUCKY", "CHINA", "PHILIPPINES", 
+						"CARIBBEAN", "CHILE", "BAHAMAS", "LONDON"};
+				Random r = new Random();
+				wordToGuess = (difficulty!=4)? words[r.nextInt(words.length) - 1]:longWord;
+				System.out.println("GameMode: " + gameMode);
+				System.out.println("Word: " + wordToGuess);		
+			}
+		});
+		
+		add(randomWord);
+		add(holiday);
+		add(food);
+		add(color);
+		add(location);
+		
+		//start game
 		
 		
 	}
 	
-	public String getWord(){
-		return wordToGuess;
-	}
 	
-	public int getDiff(){
-		return difficulty;
-	}
 	
-	public boolean getPlayer(){
-		return twoPlayer;
-	}
-	
-	public int getGameMode(){
-		return gameMode;
-	}
-	
-	public static void main(String[] args) {
-		Scanner s = new Scanner(System.in);
-		System.out.println("Two player?");
-		boolean twoPlayer = s.nextBoolean();
-		MainWindow m;
-		if(twoPlayer){
-			System.out.print("Difficulty: ");
-			System.out.print("\n");
-			int diff = s.nextInt();
-			System.out.println("Enter a word: ");
-			String word = s.next();
-			m = new MainWindow(word, diff, twoPlayer, 0);
-		}else{
-			System.out.println("Difficulty: ");
-			int diff = s.nextInt();
-			System.out.println("Enter game mode: ");
-			int gm = s.nextInt();
-			m = new MainWindow(null, diff, false, gm);
-		}
-		
-		//new MainWindow(word, 1, false, 0);
-		//ask 2 player, difficulty, word
-		
-		System.out.println("Word:" + m.getWord());
-		System.out.println("Difficulty: " + m.getDiff());
-		System.out.println("Two Player? " + m.getPlayer());
-		System.out.println("Game Mode: " + m.getGameMode());
-		
+	public static void main(String[] args){
+		new MainWindow().setVisible(true);
 	}
 
+
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
 }
