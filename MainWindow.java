@@ -6,6 +6,8 @@ import java.util.Random;
 
 import javax.swing.JFrame;
 import javax.swing.JButton;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
 
 public class MainWindow extends JFrame implements ActionListener{
 	
@@ -14,7 +16,7 @@ public class MainWindow extends JFrame implements ActionListener{
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	public String wordToGuess;
+	public String wordToGuess = "";
 	
 	public boolean twoPlayer = false;
 	
@@ -53,30 +55,49 @@ public class MainWindow extends JFrame implements ActionListener{
 		setLayout(new FlowLayout());
 		
 		//BUTTONS
-		//ONE OR TWO PLAYER
-		final JButton onePlayerButton = new JButton("One Player");
-		final JButton twoPlayerButton = new JButton("twoPlayer");
+		//ONE OR TWO PLAYER - Change to JRadioButton
+		final JRadioButton onePlayerButton = new JRadioButton("One Player");
+		final JRadioButton twoPlayerButton = new JRadioButton("twoPlayer");
 		
-		//DIFFICULTY
-		final JButton easy = new JButton("Easy");
-		final JButton medium = new JButton("Medium");
-		final JButton hard = new JButton("Hard");
-		final JButton insane = new JButton("Insane");
+		//DIFFICULTY - Change to JRadioButton
+		final JRadioButton easy = new JRadioButton("Easy");
+		final JRadioButton medium = new JRadioButton("Medium");
+		final JRadioButton hard = new JRadioButton("Hard");
+		final JRadioButton insane = new JRadioButton("Insane");
 		
-		//GAMEMODE
-		final JButton randomWord = new JButton("Random Word");
-		final JButton holiday = new JButton("Holiday");
-		final JButton food = new JButton("Food");
-		final JButton color = new JButton("Color");
-		final JButton location = new JButton("Location");
+		//GAMEMODE - change to JRadioButton
+		final JRadioButton randomWord = new JRadioButton("Random Word");
+		final JRadioButton holiday = new JRadioButton("Holiday");
+		final JRadioButton food = new JRadioButton("Food");
+		final JRadioButton color = new JRadioButton("Color");
+		final JRadioButton location = new JRadioButton("Location");
+		
+		final JButton startGame = new JButton("Start");//closes all options except new game and reveal
+		final JButton newGame = new JButton("New Game?");//opens all options up again
+		final JButton showWord = new JButton("Reveal Word");//shows word; only option is to quit or new game
+		
+		JTextField inputWord = new JTextField();
+		JTextField guessBox = new JTextField(1);
+		JTextField wrongLetters = new JTextField();
+		JTextField wordToGuessReveal = new JTextField();
+		
+		final JButton guessLetter = new JButton("Guess Letter");
+		final JButton submitWord = new JButton("Submit Word");
 		
 		/*
 		 * DEFAULT OPTIONS
 		 */
 		
-		onePlayerButton.setEnabled(false);
-		easy.setEnabled(false);
-		randomWord.setEnabled(false);
+		onePlayerButton.setSelected(true);
+		easy.setSelected(true);
+		randomWord.setSelected(true);
+		
+		newGame.setEnabled(false);
+		showWord.setEnabled(false);
+		
+		
+		
+		showConditions();
 		
 		/*
 		 * NUMBER OF PLAYERS
@@ -85,35 +106,63 @@ public class MainWindow extends JFrame implements ActionListener{
 		onePlayerButton.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e){
-					twoPlayer = false;
-					onePlayerButton.setEnabled(false);
-					twoPlayerButton.setEnabled(true);
+				twoPlayer = false;
+	
+				onePlayerButton.setSelected(true);
+				twoPlayerButton.setSelected(false);
 					
-					randomWord.setEnabled(true);
-					holiday.setEnabled(true);
-					food.setEnabled(true);
-					color.setEnabled(true);
-					location.setEnabled(true);
-					
-					System.out.println("twoPlayer? " + twoPlayer);
-					
+				randomWord.setEnabled(true);
+				holiday.setEnabled(true);
+				food.setEnabled(true);
+				color.setEnabled(true);
+				location.setEnabled(true);
+				
+				randomWord.setSelected(true);
+				holiday.setSelected(false);
+				food.setSelected(false);
+				color.setSelected(false);
+				location.setSelected(false);
+				
+				easy.setSelected(true);
+				medium.setSelected(false);
+				hard.setSelected(false);
+				insane.setSelected(false);
+				
+				difficulty = 1;
+				gameMode = 1;
+				
+				showConditions();
 			}
 		}); 
 		
 		twoPlayerButton.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e){
-					twoPlayer = true;
-					onePlayerButton.setEnabled(true);
-					twoPlayerButton.setEnabled(false);
+				twoPlayer = true;
+				onePlayerButton.setSelected(false);
+				twoPlayerButton.setSelected(true);
 					
-					randomWord.setEnabled(false);
-					holiday.setEnabled(false);
-					food.setEnabled(false);
-					color.setEnabled(false);
-					location.setEnabled(false);
+				randomWord.setEnabled(false);
+				holiday.setEnabled(false);
+				food.setEnabled(false);
+				color.setEnabled(false);
+				location.setEnabled(false);
 					
-					System.out.println("twoPlayer? " + twoPlayer);
+				randomWord.setSelected(false);
+				holiday.setSelected(false);
+				food.setSelected(false);
+				color.setSelected(false);
+				location.setSelected(false);
+					
+				easy.setSelected(true);
+				medium.setSelected(false);
+				hard.setSelected(false);
+				insane.setSelected(false);
+					
+				difficulty = 1;
+					
+				showConditions();
+				//enable box to type word
 			}
 		});
 		
@@ -130,12 +179,12 @@ public class MainWindow extends JFrame implements ActionListener{
 			public void actionPerformed(ActionEvent e){
 				difficulty = 1;	
 				guessIterator = 6;
-				easy.setEnabled(false);
-				medium.setEnabled(true);
-				hard.setEnabled(true);
-				insane.setEnabled(true);
-				System.out.println("Difficulty: " + difficulty);
-				System.out.println("Guesses: " + (remainingGuesses / guessIterator));
+				easy.setSelected(true);
+				medium.setSelected(false);
+				hard.setSelected(false);
+				insane.setSelected(false);
+				
+				showConditions();
 			}
 		});
 		
@@ -143,12 +192,12 @@ public class MainWindow extends JFrame implements ActionListener{
 			public void actionPerformed(ActionEvent e){
 				difficulty = 2;	
 				guessIterator = 10;
-				easy.setEnabled(true);
-				medium.setEnabled(false);
-				hard.setEnabled(true);
-				insane.setEnabled(true);
-				System.out.println("Difficulty: " + difficulty);
-				System.out.println("Guesses: " + (remainingGuesses / guessIterator));
+				easy.setSelected(false);
+				medium.setSelected(true);
+				hard.setSelected(false);
+				insane.setSelected(false);
+				
+				showConditions();
 			}
 		});
 		
@@ -156,12 +205,12 @@ public class MainWindow extends JFrame implements ActionListener{
 			public void actionPerformed(ActionEvent e){
 				difficulty = 3;
 				guessIterator = 15;
-				easy.setEnabled(true);
-				medium.setEnabled(true);
-				hard.setEnabled(false);
-				insane.setEnabled(true);
-				System.out.println("Difficulty: " + difficulty);
-				System.out.println("Guesses: " + (remainingGuesses / guessIterator));
+				easy.setSelected(false);
+				medium.setSelected(false);
+				hard.setSelected(true);
+				insane.setSelected(false);
+				
+				showConditions();
 			}
 		});
 		
@@ -169,12 +218,12 @@ public class MainWindow extends JFrame implements ActionListener{
 			public void actionPerformed(ActionEvent e){
 				difficulty = 4;
 				guessIterator = 60;
-				easy.setEnabled(true);
-				medium.setEnabled(true);
-				hard.setEnabled(true);
-				insane.setEnabled(false);
-				System.out.println("Difficulty: " + difficulty);
-				System.out.println("Guesses: " + (remainingGuesses / guessIterator));
+				easy.setSelected(false);
+				medium.setSelected(false);
+				hard.setSelected(false);
+				insane.setSelected(true);
+				
+				showConditions();
 			}
 		});
 		
@@ -201,13 +250,13 @@ public class MainWindow extends JFrame implements ActionListener{
 						"CIRCUIT", "SERVER", "PHYSICS", "CALCULUS", "ANSARI", "DRAKE"};
 				Random r = new Random();
 				wordToGuess = (difficulty!=4)? words[r.nextInt(words.length) - 1]:longWord;
-				randomWord.setEnabled(false);
-				holiday.setEnabled(true);
-				food.setEnabled(true);
-				color.setEnabled(true);
-				location.setEnabled(true);
-				System.out.println("GameMode: " + gameMode);
-				System.out.println("Word: " + wordToGuess);	
+				randomWord.setSelected(true);
+				holiday.setSelected(false);
+				food.setSelected(false);
+				color.setSelected(false);
+				location.setSelected(false);
+				
+				showConditions();
 			}
 		});
 		
@@ -219,13 +268,13 @@ public class MainWindow extends JFrame implements ActionListener{
 						"PRESENT", "STUFFING"};
 				Random r = new Random();
 				wordToGuess = (difficulty!=4)? words[r.nextInt(words.length) - 1]:longWord;
-				randomWord.setEnabled(true);
-				holiday.setEnabled(false);
-				food.setEnabled(true);
-				color.setEnabled(true);
-				location.setEnabled(true);
-				System.out.println("GameMode: " + gameMode);
-				System.out.println("Word: " + wordToGuess);	
+				randomWord.setSelected(false);
+				holiday.setSelected(true);
+				food.setSelected(false);
+				color.setSelected(false);
+				location.setSelected(false);
+				
+				showConditions();
 			}
 		});
 		
@@ -239,13 +288,13 @@ public class MainWindow extends JFrame implements ActionListener{
 						"CHEESE", "POPCORN", "JAMBALAYA", "SANDWICH"};
 				Random r = new Random();
 				wordToGuess = (difficulty!=4)? words[r.nextInt(words.length) - 1]:longWord;
-				randomWord.setEnabled(true);
-				holiday.setEnabled(true);
-				food.setEnabled(false);
-				color.setEnabled(true);
-				location.setEnabled(true);
-				System.out.println("GameMode: " + gameMode);
-				System.out.println("Word: " + wordToGuess);	
+				randomWord.setSelected(false);
+				holiday.setSelected(false);
+				food.setSelected(true);
+				color.setSelected(false);
+				location.setSelected(false);
+				
+				showConditions();
 			}
 		});
 		
@@ -257,13 +306,13 @@ public class MainWindow extends JFrame implements ActionListener{
 						"AUBURN", "TURQUOISE", "MAGENTA"};
 				Random r = new Random();
 				wordToGuess = (difficulty!=4)? words[r.nextInt(words.length) - 1]:longWord;
-				randomWord.setEnabled(true);
-				holiday.setEnabled(true);
-				food.setEnabled(true);
-				color.setEnabled(false);
-				location.setEnabled(true);
-				System.out.println("GameMode: " + gameMode);
-				System.out.println("Word: " + wordToGuess);	
+				randomWord.setSelected(false);
+				holiday.setSelected(false);
+				food.setSelected(false);
+				color.setSelected(true);
+				location.setSelected(false);
+				
+				showConditions();
 			}
 		});
 		
@@ -277,13 +326,13 @@ public class MainWindow extends JFrame implements ActionListener{
 						"CARIBBEAN", "CHILE", "BAHAMAS", "LONDON"};
 				Random r = new Random();
 				wordToGuess = (difficulty!=4)? words[r.nextInt(words.length) - 1]:longWord;
-				randomWord.setEnabled(true);
-				holiday.setEnabled(true);
-				food.setEnabled(true);
-				color.setEnabled(true);
-				location.setEnabled(false);
-				System.out.println("GameMode: " + gameMode);
-				System.out.println("Word: " + wordToGuess);		
+				randomWord.setSelected(false);
+				holiday.setSelected(false);
+				food.setSelected(false);
+				color.setSelected(false);
+				location.setSelected(true);	
+				
+				showConditions();
 			}
 		});
 		
@@ -294,13 +343,120 @@ public class MainWindow extends JFrame implements ActionListener{
 		add(location);
 		
 		//start game
-		/*
-		for(int i = 0; i < wordToGuess.length(); i++){
-			visibleWord += "_ ";
-		}
-		*/
+		startGame.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				//disable everything except new game and show word
+				//enable box to guess letters
+				//enable drawing canvas
+				
+				onePlayerButton.setEnabled(false);
+				twoPlayerButton.setEnabled(false);
+				
+				randomWord.setEnabled(false);
+				holiday.setEnabled(false);
+				food.setEnabled(false);
+				color.setEnabled(false);
+				location.setEnabled(false);
+				
+				easy.setEnabled(false);
+				medium.setEnabled(false);
+				hard.setEnabled(false);
+				insane.setEnabled(false);
+				
+				startGame.setEnabled(false);
+				newGame.setEnabled(true);
+				showWord.setEnabled(true);
+				
+				showConditions();
+			}
+		});
+		
+		newGame.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				//reset to default settings
+				twoPlayer = false;
+				
+				onePlayerButton.setSelected(true);
+				twoPlayerButton.setSelected(false);
+				
+				onePlayerButton.setEnabled(true);
+				twoPlayerButton.setEnabled(true);
+				
+				randomWord.setEnabled(true);
+				holiday.setEnabled(true);
+				food.setEnabled(true);
+				color.setEnabled(true);
+				location.setEnabled(true);
+				
+				randomWord.setSelected(true);
+				holiday.setSelected(false);
+				food.setSelected(false);
+				color.setSelected(false);
+				location.setSelected(false);
+				
+				easy.setEnabled(true);
+				medium.setEnabled(true);
+				hard.setEnabled(true);
+				insane.setEnabled(true);
+				
+				easy.setSelected(true);
+				medium.setSelected(false);
+				hard.setSelected(false);
+				insane.setSelected(false);
+				
+				startGame.setEnabled(true);
+				newGame.setEnabled(false);
+				showWord.setEnabled(false);
+				
+				difficulty = 1;
+				gameMode = 1;
+				
+				showConditions();
+			}
+		});
+		
+		showWord.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				//disable all except new game
+				onePlayerButton.setEnabled(false);
+				twoPlayerButton.setEnabled(false);
+				
+				randomWord.setEnabled(false);
+				holiday.setEnabled(false);
+				food.setEnabled(false);
+				color.setEnabled(false);
+				location.setEnabled(false);
+				
+				easy.setEnabled(false);
+				medium.setEnabled(false);
+				hard.setEnabled(false);
+				insane.setEnabled(false);
+				
+				startGame.setEnabled(false);
+				showWord.setEnabled(false);
+				
+				showConditions();
+			}
+		});
+		
+		add(startGame);
+		add(newGame);
+		add(showWord);
 	}
 	
+	public void updateConditions(){
+		
+	}
+	
+	public void showConditions(){
+		System.out.println("\nWord: " + wordToGuess);
+		System.out.println("Two player? " + twoPlayer);
+		System.out.println("Difficulty: " + difficulty);
+		System.out.println("Game Mode: " + gameMode);
+		System.out.println("Guess iterator:" + guessIterator);
+		System.out.println("Visible word: " + visibleWord + "\n");
+		
+	}
 	
 	
 	public static void main(String[] args){
